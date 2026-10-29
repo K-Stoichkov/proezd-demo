@@ -560,6 +560,11 @@ struct TicketRow: View {
 
 // MARK: - Хелперы
 
+extension Ticket {
+    var dateShort: String { String(format: "%02d.%02d.%d", ts.day, ts.month, ts.year) }
+    var timeShort: String { String(format: "%02d:%02d", ts.hour, ts.minute) }
+}
+
 extension Date {
     var day: Int { Calendar.current.component(.day, from: self) }
     var month: Int { Calendar.current.component(.month, from: self) }
