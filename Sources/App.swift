@@ -279,74 +279,92 @@ struct TicketScreen: View {
 
     private var Card: some View {
         ZStack(alignment: .topTrailing) {
-            VStack(spacing: 0) {
-                // QR
-                Group {
-                    if let img = qrImage(qrText) {
-                        Image(uiImage: img)
-                            .interpolation(.none)
-                            .resizable()
-                            .scaledToFit()
-                    }
-                }
-                .padding(12)
-                .background(RoundedRectangle(cornerRadius: 18).fill(.white))
-                .frame(width: 190)
-                .padding(.top, 30)
-
-                Text("Номер маршрута")
-                    .font(.system(size: 27, weight: .regular))
-                    .padding(.top, 34)
-                Text("№ \(ticket.route)")
-                    .font(.system(size: 32, weight: .bold))
-                    .padding(.bottom, 8)
-
-                // перфорация
-                TearLine()
-
-                Text("Оплачено:")
-                    .font(.system(size: 20, weight: .medium))
-                HStack(spacing: 2) {
-                    seg(dateShort)
-                    seg(timeShort, divider: true)
-                }
-                .background(RoundedRectangle(cornerRadius: 13).fill(Color.white.opacity(0.17)))
-                .padding(.vertical, 12)
-
-                Text("Мой билет:")
-                    .font(.system(size: 20, weight: .medium))
-                Text("\(ticket.tariff) / \(ticket.price) ₸")
-                    .font(.system(size: 17, weight: .bold))
-                    .padding(.vertical, 11).padding(.horizontal, 30)
-                    .background(RoundedRectangle(cornerRadius: 13).fill(Color.white.opacity(0.17)))
-                    .padding(.vertical, 12)
-
-                Text("Номер транспорта:")
-                    .font(.system(size: 20, weight: .medium))
-                Text(ticket.transport)
-                    .font(.system(size: 26, weight: .bold))
-                    .padding(.top, 4)
-
-                Text("Демо-макет — не чек об оплате")
-                    .font(.caption2)
-                    .foregroundStyle(Color.white.opacity(0.8))
-                    .padding(.top, 18)
-            }
-            .padding(22)
-            .background(RoundedRectangle(cornerRadius: 30).fill(Color(hex: "1b1cb4")))
-            .shadow(color: .black.opacity(0.3), radius: 30, y: 24)
-            .padding(.horizontal, 30)
-
-            Button(action: close) {
-                Image(systemName: "xmark")
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .frame(width: 38, height: 38)
-                    .background(Circle().fill(Color.white.opacity(0.22)))
-            }
-            .padding(.trailing, 42)
+            cardContent
+            closeButton
         }
         .padding(.horizontal, 6)
+    }
+
+    private var cardContent: some View {
+        VStack(spacing: 0) {
+            qrView
+            Text("Номер маршрута")
+                .font(.system(size: 27, weight: .regular))
+                .padding(.top, 34)
+            Text("№ \(ticket.route)")
+                .font(.system(size: 32, weight: .bold))
+                .padding(.bottom, 8)
+
+            TearLine()
+            paidView
+            myTicketView
+
+            Text("Номер транспорта:")
+                .font(.system(size: 20, weight: .medium))
+            Text(ticket.transport)
+                .font(.system(size: 26, weight: .bold))
+                .padding(.top, 4)
+
+            Text("Демо-макет — не чек об оплате")
+                .font(.caption2)
+                .foregroundStyle(Color.white.opacity(0.8))
+                .padding(.top, 18)
+        }
+        .padding(22)
+        .background(RoundedRectangle(cornerRadius: 30).fill(Color(hex: "1b1cb4")))
+        .shadow(color: .black.opacity(0.3), radius: 30, y: 24)
+        .padding(.horizontal, 30)
+    }
+
+    private var qrView: some View {
+        Group {
+            if let img = qrImage(qrText) {
+                Image(uiImage: img)
+                    .interpolation(.none)
+                    .resizable()
+                    .scaledToFit()
+            }
+        }
+        .padding(12)
+        .background(RoundedRectangle(cornerRadius: 18).fill(.white))
+        .frame(width: 190)
+        .padding(.top, 30)
+    }
+
+    private var paidView: some View {
+        VStack(spacing: 0) {
+            Text("Оплачено:")
+                .font(.system(size: 20, weight: .medium))
+            HStack(spacing: 2) {
+                seg(dateShort)
+                seg(timeShort, divider: true)
+            }
+            .background(RoundedRectangle(cornerRadius: 13).fill(Color.white.opacity(0.17)))
+            .padding(.vertical, 12)
+        }
+    }
+
+    private var myTicketView: some View {
+        VStack(spacing: 0) {
+            Text("Мой билет:")
+                .font(.system(size: 20, weight: .medium))
+            Text("\(ticket.tariff) / \(ticket.price) ₸")
+                .font(.system(size: 17, weight: .bold))
+                .padding(.vertical, 11).padding(.horizontal, 30)
+                .background(RoundedRectangle(cornerRadius: 13).fill(Color.white.opacity(0.17)))
+                .padding(.vertical, 12)
+        }
+    }
+
+    private var closeButton: some View {
+        Button(action: close) {
+            Image(systemName: "xmark")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: 38, height: 38)
+                .background(Circle().fill(Color.white.opacity(0.22)))
+        }
+        .padding(.trailing, 42)
     }
 
     private var qrText: String {
@@ -409,82 +427,133 @@ struct HistoryScreen: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                if store.tickets.isEmpty {
-                    VStack(spacing: 8) {
-                        Text("Пока нет билетов")
-                            .font(.headline)
-                        Text("Купите первый на вкладке «Оплата»")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
-                } else {
-                    List {
-                        Section {
-                            HStack {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Потрачено")
-                                        .font(.footnote.weight(.semibold))
-                                        .foregroundStyle(.secondary)
-                                    HStack(spacing: 2) {
-                                        Text(store.totalSpent, format: .number)
-                                        Text(" ₸")
-                                    }
-                                    .font(.title2.weight(.heavy))
-                                    .foregroundStyle(Color(hex: "1b1cb4"))
-                                }
-                                Spacer()
-                                VStack(alignment: .trailing, spacing: 2) {
-                                    Text("Поездок")
-                                        .font(.footnote.weight(.semibold))
-                                        .foregroundStyle(.secondary)
-                                    Text("\(store.tickets.count)")
-                                        .font(.title3.weight(.bold))
-                                }
-                            }
-                        }
-                        ForEach(store.tickets) { t in
-                            Button { open(t) } label: {
-                                HStack {
-                                    VStack(alignment: .leading, spacing: 3) {
-                                        Text("№ \(t.route) · \(t.transport)")
-                                            .font(.body.weight(.bold))
-                                            .foregroundStyle(.primary)
-                                        Text("\(t.dateShort) · \(t.timeShort) · \(t.tariff)")
-                                            .font(.footnote)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                    Spacer()
-                                    Text("\(t.price) ₸")
-                                        .font(.body.weight(.heavy))
-                                        .foregroundStyle(Color(hex: "1b1cb4"))
-                                    Image(systemName: "chevron.right")
-                                        .font(.footnote)
-                                        .foregroundStyle(.tertiary)
-                                }
-                            }
-                            .swipeActions {
-                                Button(role: .destructive) {
-                                    store.remove(t)
-                                } label: {
-                                    Label("Удалить", systemImage: "trash")
-                                }
-                            }
-                        }
-                    }
-                    .listStyle(.insetGrouped)
-                }
+            if store.tickets.isEmpty {
+                EmptyHistoryView()
+            } else {
+                TicketList(store: store, open: open)
             }
-            .navigationTitle("История билетов")
-            .toolbar {
-                if !store.tickets.isEmpty {
-                    ToolbarItem(placement: .bottomBar) {
-                        Button("Очистить историю", role: .destructive) {
-                            store.clear()
-                        }
+        }
+        .navigationTitle("История билетов")
+        .toolbar {
+            if !store.tickets.isEmpty {
+                ToolbarItem(placement: .bottomBar) {
+                    Button("Очистить историю", role: .destructive) {
+                        store.clear()
                     }
                 }
             }
+        }
+    }
+}
+
+/// Пустое состояние — ещё нет билетов
+struct EmptyHistoryView: View {
+    var body: some View {
+        VStack(spacing: 8) {
+            Text("Пока нет билетов")
+                .font(.headline)
+            Text("Купите первый на вкладке «Оплата»")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+        }
+    }
+}
+
+/// Список билетов
+struct TicketList: View {
+    @ObservedObject var store: TicketStore
+    let open: (Ticket) -> Void
+
+    var body: some View {
+        List {
+            Section {
+                StatsRow(store: store)
+            }
+            ForEach(store.tickets) { t in
+                Button { open(t) } label: {
+                    TicketRow(t: t)
+                }
+                .swipeActions {
+                        Button(role: .destructive) {
+                            store.remove(t)
+                        } label: {
+                            Label("Удалить", systemImage: "trash")
+                        }
+                    }
+            }
+        }
+        .listStyle(.insetGrouped)
+    }
+}
+
+/// Верхняя строка со статистикой
+struct StatsRow: View {
+    @ObservedObject var store: TicketStore
+
+    var body: some View {
+        HStack {
+            spentPart
+            Spacer()
+            tripsPart
+        }
+    }
+
+    private var spentPart: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text("Потрачено")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.secondary)
+            HStack(spacing: 2) {
+                Text(store.totalSpent, format: .number)
+                Text(" ₸")
+            }
+            .font(.title2.weight(.heavy))
+            .foregroundStyle(Color(hex: "1b1cb4"))
+        }
+    }
+
+    private var tripsPart: some View {
+        VStack(alignment: .trailing, spacing: 2) {
+            Text("Поездок")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.secondary)
+            Text("\(store.tickets.count)")
+                .font(.title3.weight(.bold))
+        }
+    }
+}
+
+/// Одна строка билета в истории
+struct TicketRow: View {
+    let t: Ticket
+
+    var body: some View {
+        HStack {
+            textPart
+            Spacer()
+            pricePart
+        }
+    }
+
+    private var textPart: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text("№ \(t.route) · \(t.transport)")
+                .font(.body.weight(.bold))
+                .foregroundStyle(.primary)
+            Text("\(t.dateShort) · \(t.timeShort) · \(t.tariff)")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var pricePart: some View {
+        HStack(spacing: 4) {
+            Text("\(t.price) ₸")
+                .font(.body.weight(.heavy))
+                .foregroundStyle(Color(hex: "1b1cb4"))
+            Image(systemName: "chevron.right")
+                .font(.footnote)
+                .foregroundStyle(.tertiary)
         }
     }
 }
