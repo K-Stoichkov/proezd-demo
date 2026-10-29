@@ -1,0 +1,24 @@
+name: ProezdDemo
+options:
+  bundleIdPrefix: ru.demoticket
+  createIntermediateGroups: true
+settings:
+  base:
+    IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+    TARGETED_DEVICE_FAMILY: "1"
+targets:
+  ProezdDemo:
+    type: application
+    platform: iOS
+    sources:
+      - Sources
+    scheme: {}
+    info:
+      path: Info.plist
+      properties:
+        CFBundleDisplayName: Проезд_DEMO
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
